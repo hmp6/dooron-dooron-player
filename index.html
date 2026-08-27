@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dooron Dooron — Player</title>
+<style>
+  :root{
+    --purple: #8e2fc0;
+    --purple-deep: #5a1a8f;
+    --teal: #1f9d8a;
+    --bg-black: #0d0d0f;
+    --white: #ffffff;
+    --white-dim: rgba(255,255,255,0.65);
+    --white-faint: rgba(255,255,255,0.4);
+  }
+
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body{
+    height: 100%;
+    margin: 0;
+    background: var(--bg-black);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .phone{
+    position: relative;
+    width: 420px;
+    max-width: 100vw;
+    height: 100vh;
+    max-height: 932px;
+    background: linear-gradient(165deg, #1f9d8a 0%, #6a2fae 45%, #2a0f42 75%, #0d0d0f 100%);
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  @media (min-width: 460px){
+    .phone{
+      height: 900px;
+      border-radius: 40px;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+      margin: 16px;
+    }
+  }
+
+  .statusbar{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 22px 6px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .statusbar .icons{ display:flex; gap:6px; align-items:center; opacity:0.95; }
+
+  .art-wrap{
+    margin: 18px 24px 0;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+    aspect-ratio: 1 / 1;
+  }
+  .art-wrap img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .meta-row{
+    display:flex;
+    align-items:flex-start;
+    justify-content: space-between;
+    padding: 22px 24px 0;
+  }
+  .meta-text h1{
+    font-size: 26px;
+    margin: 0 0 4px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
+  .meta-text p{
+    margin: 0;
+    font-size: 15px;
+    color: var(--white-dim);
+    font-weight: 400;
+  }
+
+  .heart-btn{
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color: var(--white);
+  }
+  .heart-btn svg{ width: 26px; height: 26px; transition: transform .15s ease; }
+  .heart-btn.liked svg path{ fill: var(--white); }
+  .heart-btn:active svg{ transform: scale(0.85); }
+
+  .progress-section{
+    padding: 30px 24px 0;
+  }
+  .progress-bar{
+    position: relative;
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .progress-fill{
+    position: absolute;
+    top:0; left:0; height:100%;
+    width: 0%;
+    background: var(--white);
+    border-radius: 4px;
+  }
+  .progress-thumb{
+    position: absolute;
+    top: 50%;
+    left: 0%;
+    width: 14px; height: 14px;
+    background: var(--white);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+  .time-row{
+    display:flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--white-dim);
+    margin-top: 8px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .controls-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 46px;
+    padding: 26px 24px 0;
+  }
+  .ctrl-btn{
+    background:none;
+    border:none;
+    color: var(--white);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 6px;
+  }
+  .ctrl-btn svg{ width: 26px; height: 26px; }
+  .ctrl-btn:active{ opacity: 0.6; }
+
+  .play-btn{
+    width: 68px; height: 68px;
+    border-radius: 50%;
+    background: linear-gradient(160deg, #a13fd6, #7a24ac);
+    box-shadow: 0 10px 24px rgba(122,36,172,0.55);
+  }
+  .play-btn svg{ width: 26px; height: 26px; }
+  .play-btn:active{ transform: scale(0.94); }
+
+  .tabs-sheet{
+    margin-top: auto;
+    background: rgba(60, 18, 92, 0.55);
+    backdrop-filter: blur(10px);
+    border-top-left-radius: 26px;
+    border-top-right-radius: 26px;
+    padding: 14px 24px 22px;
+  }
+  .sheet-handle{
+    width: 42px; height: 4px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 4px;
+    margin: 0 auto 18px;
+  }
+  .tabs{
+    display:flex;
+    justify-content: space-around;
+  }
+  .tab{
+    background:none;
+    border:none;
+    color: var(--white-dim);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+  .tab.active{ color: var(--white); }
+  .home-indicator{
+    width: 120px;
+    height: 4px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 4px;
+    margin: 16px auto 0;
+  }
+
+  audio{ display:none; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <div class="statusbar">
+    <span>9:41</span>
+    <span class="icons">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="none"><rect x="0" y="7" width="3" height="5" rx="0.5" fill="white"/><rect x="5" y="5" width="3" height="7" rx="0.5" fill="white"/><rect x="10" y="2" width="3" height="10" rx="0.5" fill="white"/><rect x="15" y="0" width="3" height="12" rx="0.5" fill="white"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M8 10.5C8.55 10.5 9 10.05 9 9.5C9 8.95 8.55 8.5 8 8.5C7.45 8.5 7 8.95 7 9.5C7 10.05 7.45 10.5 8 10.5Z" fill="white"/><path d="M8 6C6.5 6 5.15 6.55 4.1 7.45L5.5 8.85C6.2 8.25 7.05 7.9 8 7.9C8.95 7.9 9.8 8.25 10.5 8.85L11.9 7.45C10.85 6.55 9.5 6 8 6Z" fill="white"/><path d="M8 2C5.4 2 3.05 2.95 1.2 4.55L2.6 5.95C4.15 4.6 6 3.9 8 3.9C10 3.9 11.85 4.6 13.4 5.95L14.8 4.55C12.95 2.95 10.6 2 8 2Z" fill="white"/></svg>
+      <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="1" y="1" width="20" height="10" rx="2" stroke="white" stroke-width="1"/><rect x="2.5" y="2.5" width="17" height="7" rx="1" fill="white"/><rect x="22" y="4" width="1.5" height="4" rx="0.5" fill="white"/></svg>
+    </span>
+  </div>
+
+  <div class="art-wrap">
+    <img src="album-art.jpg" alt="Dooron Dooron album art">
+  </div>
+
+  <div class="meta-row">
+    <div class="meta-text">
+      <h1>Dooron Dooron</h1>
+      <p>Paresh Pahuja</p>
+    </div>
+    <button class="heart-btn" id="likeBtn" aria-label="Like song">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M12 21s-7.5-4.6-10-9.2C0.2 8.4 1.8 4.8 5.3 4.1c2-.4 3.8.5 6.7 3 2.9-2.5 4.7-3.4 6.7-3 3.5.7 5.1 4.3 3.3 7.7C19.5 16.4 12 21 12 21z" stroke="white" stroke-width="1.6"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-fill" id="progressFill"></div>
+      <div class="progress-thumb" id="progressThumb"></div>
+    </div>
+    <div class="time-row">
+      <span id="currentTime">0:00</span>
+      <span id="duration">0:00</span>
+    </div>
+  </div>
+
+  <div class="controls-row">
+    <button class="ctrl-btn" id="prevBtn" aria-label="Restart">
+      <svg viewBox="0 0 24 24" fill="white"><path d="M6 6h2v12H6zM20 6L10 12l10 6z"/></svg>
+    </button>
+    <button class="ctrl-btn play-btn" id="playBtn" aria-label="Play or pause">
+      <svg id="playIcon" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+      <svg id="pauseIcon" viewBox="0 0 24 24" fill="white" style="display:none"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+    </button>
+    <button class="ctrl-btn" id="nextBtn" aria-label="Restart">
+      <svg viewBox="0 0 24 24" fill="white"><path d="M16 6h2v12h-2zM4 6l10 6-10 6z"/></svg>
+    </button>
+  </div>
+
+  <div class="tabs-sheet">
+    <div class="sheet-handle"></div>
+    <div class="tabs">
+      <button class="tab active">Up Next</button>
+      <button class="tab">Lyrics</button>
+      <button class="tab">Related</button>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+
+  <audio id="audio" src="dooron-dooron.mp3" preload="metadata"></audio>
+</div>
+
+<script>
+  const audio = document.getElementById('audio');
+  const playBtn = document.getElementById('playBtn');
+  const playIcon = document.getElementById('playIcon');
+  const pauseIcon = document.getElementById('pauseIcon');
+  const progressBar = document.getElementById('progressBar');
+  const progressFill = document.getElementById('progressFill');
+  const progressThumb = document.getElementById('progressThumb');
+  const currentTimeEl = document.getElementById('currentTime');
+  const durationEl = document.getElementById('duration');
+  const likeBtn = document.getElementById('likeBtn');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  function formatTime(sec){
+    if (isNaN(sec)) return '0:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  function togglePlay(){
+    if (audio.paused){
+      audio.play();
+      playIcon.style.display = 'none';
+      pauseIcon.style.display = '';
+    } else {
+      audio.pause();
+      playIcon.style.display = '';
+      pauseIcon.style.display = 'none';
+    }
+  }
+
+  playBtn.addEventListener('click', togglePlay);
+
+  audio.addEventListener('loadedmetadata', () => {
+    durationEl.textContent = formatTime(audio.duration);
+  });
+
+  audio.addEventListener('timeupdate', () => {
+    const pct = (audio.currentTime / audio.duration) * 100 || 0;
+    progressFill.style.width = pct + '%';
+    progressThumb.style.left = pct + '%';
+    currentTimeEl.textContent = formatTime(audio.currentTime);
+  });
+
+  audio.addEventListener('ended', () => {
+    playIcon.style.display = '';
+    pauseIcon.style.display = 'none';
+  });
+
+  function seek(e){
+    const rect = progressBar.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const pct = Math.min(Math.max((clientX - rect.left) / rect.width, 0), 1);
+    audio.currentTime = pct * audio.duration;
+  }
+
+  progressBar.addEventListener('click', seek);
+  let dragging = false;
+  progressBar.addEventListener('mousedown', () => dragging = true);
+  window.addEventListener('mousemove', (e) => { if (dragging) seek(e); });
+  window.addEventListener('mouseup', () => dragging = false);
+  progressBar.addEventListener('touchstart', () => dragging = true);
+  window.addEventListener('touchmove', (e) => { if (dragging) seek(e); });
+  window.addEventListener('touchend', () => dragging = false);
+
+  likeBtn.addEventListener('click', () => {
+    likeBtn.classList.toggle('liked');
+  });
+
+  prevBtn.addEventListener('click', () => { audio.currentTime = 0; });
+  nextBtn.addEventListener('click', () => { audio.currentTime = 0; });
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
