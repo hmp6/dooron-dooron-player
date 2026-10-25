@@ -327,9 +327,10 @@
     currentTimeEl.textContent = formatTime(audio.currentTime);
   });
 
+  audio.loop = true;
   audio.addEventListener('ended', () => {
-    playIcon.style.display = '';
-    pauseIcon.style.display = 'none';
+    audio.currentTime = 0;
+    audio.play();
   });
 
   function seek(e){
@@ -365,4 +366,5 @@
 
 </body>
 </html>
+
 
